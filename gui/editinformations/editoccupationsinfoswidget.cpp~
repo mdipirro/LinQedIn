@@ -1,0 +1,173 @@
+#include "editoccupationsinfoswidget.h"
+#include "customstandarditemmodel.h"
+#include "gui/guistyle.h"
+#include "user/profileinformations/occupations.h"
+#include "user/profileinformations/job.h"
+#include "user/profile.h"
+#include "exceptions/noinfoexception.h"
+#include <QVector>
+#include <QString>
+#include <QTableView>
+#include <QStringList>
+#include <QHeaderView>
+#include <QStandardItem>
+#include <QLabel>
+#include <QPushButton>
+#include <QCalendarWidget>
+#include <QModelIndex>
+#include <QDate>
+
+QString EditOccupationsInfosWidget::deleteImagePath="images/delete.png";
+QString EditOccupationsInfosWidget::deleteS=tr("Elimina");
+QString EditOccupationsInfosWidget::noJobS=tr("Nessuna Lavoro.");
+
+EditOccupationsInfosWidget::EditOccupationsInfosWidget(const LinQedInClient* cl,QWidget* parent):EditInfosWidget(parent,
+                                                                                                            tr("Modifica esperienze lavorative"),
+                                                                                                            cl),
+    calendar(0){
+    setAttribute(Qt::WA_DeleteOnClose,true);
+    try{
+        infos=dynamic_cast<const Occupations*>(&getProfile().getInformationsBySectionName(Occupations::getIDString()));
+    }catch(const NoInfoException&){infos=0;}
+    initJobs();
+
+    noJob=new QLabel(noJobS);
+    noJob->setStyleSheet(GUIStyle::errorLabelStyle());
+    addWidgetToMainLayout(noJob,Qt::AlignCenter);
+
+    addJob=new QPushButton(tr("Aggiungi Lavoro"));
+    addJob->setCursor(QCursor(Qt::PointingHandCursor));
+    addWidgetToMainLayout(addJob,Qt::AlignCenter);
+    connect(addJob,SIGNAL(clicked()),this,SLOT(addRow()));
+
+    initButtons(true,true,true);
+    writeDefaultValues();
+}//EditOccupationsInfosWidget
+
+EditOccupationsInfosWidget::~EditOccupationsInfosWidget(){}
+
+void EditOccupationsInfosWidget::initJobs(){
+    QVector<int> aux; aux.push_back(remove); aux.push_back(begin); aux.push_back(end);
+    QStringList header; header<<deleteS<<tr("Azienda")<<tr("Impiego")<<tr("Dal")<<tr("Al");
+    model=new CustomStandardItemModel(aux,0,header.size());
+    model->setHorizontalHeaderLabels(header);
+
+    jobs=new QTableView;
+    jobs->setMinimumWidth(500);
+    jobs->horizontalHeader()->setDefaultAlignment(Qt::AlignCenter);
+    jobs->verticalHeader()->setVisible(false);
+    jobs->setMouseTracking(true);
+    addWidgetToMainLayout(jobs,Qt::AlignCenter);
+    jobs->setModel(model);
+    jobs->setStyleSheet("QHeaderView::section{background:"+GUIStyle::lightGold()+";}");
+    connect(jobs,SIGNAL(entered(QModelIndex)),this,SLOT(changeCursor(QModelIndex)));
+    connect(jobs,SIGNAL(clicked(QModelIndex)),this,SLOT(clickHandler(QModelIndex)));
+}//initJobs
+
+void EditOccupationsInfosWidget::adjustTableHeight() const{
+    jobs->resizeColumnsToContents();
+    jobs->resizeRowsToContents();
+    jobs->horizontalHeader()->setStretchLastSection(true);
+    jobs->setMinimumHeight(model->rowCount()*jobs->rowHeight(0)+jobs->horizontalHeader()->height()+
+                              2*jobs->frameWidth());
+    jobs->setMaximumHeight(model->rowCount()*jobs->rowHeight(0)+jobs->horizontalHeader()->height()+
+                              2*jobs->frameWidth());
+}//adjustTableHeight
+
+void EditOccupationsInfosWidget::deleteRow(int r) const{
+    model->removeRow(r);
+    if(model->rowCount()!=0) adjustTableHeight();
+    else{jobs->setVisible(false); noJob->setVisible(true); noJob->setText(noJobS);}
+}//deleteRow
+
+void EditOccupationsInfosWidget::writeDefaultValues() const{
+    if(infos){
+        QVector<Job> js=infos->getJobs();
+        jobs->setVisible(js.size()>0); noJob->setHidden(js.size()>0);
+        if(js.size()>0){
+            model->setRowCount(js.size());
+            int r=0;
+            QLabel *del=new QLabel;
+            del->setPixmap(QPixmap(deleteImagePath));
+            del->setMinimumSize(30,30);
+            del->setMaximumSize(30,30);
+            del->setScaledContents(true);
+            del->setAlignment(Qt::AlignCenter);
+            for(QVector<Job>::const_iterator it=js.constBegin();it!=js.constEnd();it++,r++){
+                model->setItem(r,remove,new QStandardItem(QIcon(deleteImagePath),deleteS));
+                model->setItem(r,company,new QStandardItem(it->getCompany()));
+                model->setItem(r,employment,new QStandardItem(it->getEmployment()));
+                model->setItem(r,begin,new QStandardItem(it->getBeginDate().toString("dd/M/yyyy")));
+                model->setItem(r,end,new QStandardItem((it->getEndDate().isValid())?it->getEndDate().toString("dd/M/yyyy"):
+                                                                                    tr("In corso")));
+            }//for
+            adjustTableHeight();
+        }//if
+    }//if
+    else{noJob->setVisible(true); jobs->setVisible(false);}
+}//writeDefaultValues
+
+void EditOccupationsInfosWidget::saveRequest(){
+    Occupations o;
+    bool stopped=false;
+    int r=0;
+    for(;r<model->rowCount() && !stopped;r++){
+        stopped=(model->item(r,company)->text()=="" || model->item(r,employment)->text()=="" || model->item(r,begin)->text()=="Click");
+        o.addJob(Job(model->item(r,company)->text(),
+                     model->item(r,employment)->text(),
+                     QDate::fromString(model->item(r,begin)->text(),"dd/M/yyyy"),
+                     (model->item(r,end)->text()=="In corso")?QDate(0,0,0):
+                                        QDate::fromString(model->item(r,4)->text(),"dd/M/yyyy")));
+    }//for
+    if(stopped){
+        noJob->setText("Informazioni mancanti nell'inserimento di un lavoro.");
+        noJob->setVisible(true);
+    }//if
+    else if(r==0) cancel();
+    else{
+        Profile prof=getProfile();
+        prof.updateInformationsBySectionName(Occupations::getIDString(),o);
+        emit save(prof);
+    }//else
+}//saveRequest
+
+void EditOccupationsInfosWidget::changeCursor(const QModelIndex& index) const{
+    if(index.column()==remove || index.column()==begin || index.column()==end) jobs->setCursor(QCursor(Qt::PointingHandCursor));
+    else jobs->setCursor(QCursor(Qt::ArrowCursor));
+}//changeCursor
+
+void EditOccupationsInfosWidget::clickHandler(const QModelIndex& index){
+    if(index.column()==remove) deleteRow(index.row());
+    else if(index.column()==begin || index.column()==end){
+        targetItem=model->item(index.row(),index.column());
+	if(calendar) calendar->close();
+        calendar=new QCalendarWidget;
+        calendar->setWindowFlags(Qt::WindowStaysOnTopHint);
+        calendar->show();
+        connect(calendar,SIGNAL(clicked(QDate)),this,SLOT(changeDate(QDate)));
+        calendar->setSelectedDate((targetItem->text()!="Click")?QDate::fromString(targetItem->text(),"dd/M/yyyy")
+                                                         :QDate::currentDate());
+        calendar->showSelectedDate();
+    }//if
+}//clickHandler
+
+void EditOccupationsInfosWidget::addRow() const{
+    model->setRowCount(model->rowCount()+1);
+    model->setItem(model->rowCount()-1,remove,new QStandardItem(QIcon(deleteImagePath),deleteS));
+    model->setItem(model->rowCount()-1,company,new QStandardItem(""));
+    model->setItem(model->rowCount()-1,employment,new QStandardItem(""));
+    model->setItem(model->rowCount()-1,begin,new QStandardItem("Click"));
+    model->setItem(model->rowCount()-1,end,new QStandardItem("Click"));
+    adjustTableHeight();
+    if(model->rowCount()==1){
+        jobs->setVisible(true);
+        noJob->setVisible(false);
+    }//if
+}//addRow
+
+void EditOccupationsInfosWidget::changeDate(const QDate& newDate){
+    calendar->close();
+    calendar=0;
+    (newDate<=QDate::currentDate())?targetItem->setText(newDate.toString("dd/M/yyyy")):
+                                   targetItem->setText("In corso");
+}//changeDate

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<network>
+    <user username="matteodipirro@gmail.com">
+        <value>paolodipirro@gmail.it</value>
+        <value>danielaromagnoli@gmail.com</value>
+        <value>ellypully@hotmail.it</value>
+    </user>
+    <user username="paolodipirro@gmail.it">
+        <value>matteodipirro@gmail.com</value>
+    </user>
+    <user username="danielaromagnoli@gmail.com">
+        <value>matteodipirro@gmail.com</value>
+    </user>
+    <user username="ellypully@hotmail.it">
+        <value>matteodipirro@gmail.com</value>
+    </user>
+</network>

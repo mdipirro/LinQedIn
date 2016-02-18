@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database>
+    <user type="3">
+        <login>
+            <value>matteodipirro@gmail.com</value>
+            <value>11agos94</value>
+        </login>
+        <payment>
+            <value>2016</value>
+            <value>6</value>
+            <value>16</value>
+        </payment>
+        <information>
+            <info type="Personali">
+                <value>Matteo</value>
+                <value>Di Pirro</value>
+                <value>Padova</value>
+                <value>Italia</value>
+                <value>1994</value>
+                <value>8</value>
+                <value>11</value>
+                <value>M</value>
+            </info>
+            <info type="Titoli Di Studio">
+                <value>ITIS F. Severi</value>
+                <value>Perito Informatico</value>
+                <value>Universita' degli Studi di Padova</value>
+                <value>Informatica</value>
+                <value>0</value>
+            </info>
+        </information>
+    </user>
+    <user type="1">
+        <login>
+            <value>paolodipirro@gmail.it</value>
+            <value>password</value>
+        </login>
+        <information>
+            <info type="Esperienze Lavorative">
+                <value>Cespro</value>
+                <value>Tecnico</value>
+                <value>1990</value>
+                <value>1</value>
+                <value>1</value>
+                <value>1995</value>
+                <value>1</value>
+                <value>2</value>
+                <value>PDP Sistemi</value>
+                <value>Titolare</value>
+                <value>1995</value>
+                <value>1</value>
+                <value>1</value>
+                <value>2005</value>
+                <value>12</value>
+                <value>31</value>
+                <value>Electrik</value>
+                <value>Tecnico Specialista</value>
+                <value>2006</value>
+                <value>1</value>
+                <value>1</value>
+                <value>0</value>
+                <value>0</value>
+                <value>0</value>
+            </info>
+            <info type="Personali">
+                <value>Paolo</value>
+                <value>Di Pirro</value>
+                <value>Firenze</value>
+                <value>Italia</value>
+                <value>1962</value>
+                <value>2</value>
+                <value>20</value>
+                <value>M</value>
+            </info>
+            <info type="Titoli Di Studio">
+                <value>ITIS Meucci</value>
+                <value>Firenze</value>
+            </info>
+        </information>
+    </user>
+    <user type="2">
+        <login>
+            <value>danielaromagnoli@gmail.com</value>
+            <value>password</value>
+        </login>
+        <payment>
+            <value>2016</value>
+            <value>6</value>
+            <value>16</value>
+        </payment>
+        <information>
+            <info type="Esperienze Lavorative">
+                <value>Cassa dI Risparmio</value>
+                <value>Cassiera</value>
+                <value>1980</value>
+                <value>1</value>
+                <value>1</value>
+                <value>0</value>
+                <value>0</value>
+                <value>0</value>
+            </info>
+            <info type="Personali">
+                <value>Daniela</value>
+                <value>Romagnoli</value>
+                <value>Rovigo</value>
+                <value>Italia</value>
+                <value>1963</value>
+                <value>1</value>
+                <value>16</value>
+                <value>F</value>
+            </info>
+            <info type="Titoli Di Studio">
+                <value>Nessuna informazione</value>
+                <value>Ragioniera</value>
+            </info>
+        </information>
+    </user>
+    <user type="2">
+        <login>
+            <value>ellypully@hotmail.it</value>
+            <value>password</value>
+        </login>
+        <payment>
+            <value>2016</value>
+            <value>6</value>
+            <value>16</value>
+        </payment>
+        <information>
+            <info type="Personali">
+                <value>Elena</value>
+                <value>Pullin</value>
+                <value>Padova</value>
+                <value>Italia</value>
+                <value>1995</value>
+                <value>7</value>
+                <value>28</value>
+                <value>F</value>
+            </info>
+            <info type="Titoli Di Studio">
+                <value>Liceo Scientifico Curiel</value>
+                <value>Nessuna informazione</value>
+                <value>Universita' degli Studi di Padova</value>
+                <value>Ingegneria Meccanica</value>
+                <value>0</value>
+            </info>
+        </information>
+    </user>
+</database>
